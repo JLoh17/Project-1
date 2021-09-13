@@ -135,7 +135,7 @@ div~p {
 #player {
   height: 20px;
   width: 20px;
-  background-color: red;
+  background-color: blue;
   position: absolute;
 }
 
@@ -143,17 +143,23 @@ div~p {
   height: 10px;
   width: 10px;
   background-color: white;
-  border-radius: 50%;
   position: absolute;
 }
 
-#opposition-player {
+.opposition-player {
   height: 30px;
   width: 30px;
-  background-color: blue;
-  border-radius: 50%;
+  background-color: red;
   position: absolute;
 }
+
+#opposition-gk {
+  height: 20px;
+  width: 20px;
+  background-color: gold;
+  position: absolute;
+}
+
 
 .button {
   display: flex;

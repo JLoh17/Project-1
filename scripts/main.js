@@ -5,11 +5,21 @@ const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
 const FPS = 60
 const LOOP_INTERVAL = Math.round(1000 / FPS)
-const VELOCITY = 3
+const VELOCITY = 1
+
+// Opposition player
+const OPPOSITION_WIDTH = 30
+const OPPOSITION_HEIGHT = 30
+const OPPOSITION_VELOCITY = 3
+
+// Opposition GK
+const OPPOSITION_GK_WIDTH = 20
+const OPPOSITION_GK_HEIGHT = 20
+const OPPOSITION_GK_VELOCITY = 2
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 20
+const INIT_SECONDS = 2
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = -5
 const CLOCK_INVOKE_INTERVAL = 100
@@ -22,11 +32,15 @@ const $restartBTN = $('#restart-btn')
 let clockInterval, timeLeft, points
 
 const $player = $('#player')
-const $opposition = $('#opposition')
+const $oppositionPlayer = $('.opposition-player')
+const $opP1 = $('#op-play1')
 const $gameScreen = $('#game-screen')
 const $gameArea = $('#game-area')
 const $display = $('#display')
 const $startingInstruction = $('#starting-instruction')
+
+
+
 
 //Shooting function
 
@@ -52,6 +66,19 @@ let player = {
 }
 
 //Opposition player
+let Opposition = (x,y, OPPOSITION_VELOCITY, OPPOSITION_WIDTH, OPPOSITION_HEIGHT) => {
+  this.x = x;
+  this.y = y;
+  this.OPPOSITION_VELOCITY = OPPOSITION_VELOCITY;
+  this.OPPOSITION_WIDTH = OPPOSITION_WIDTH;
+  this.OPPOSITION_HEIGHT = OPPOSITION_HEIGHT;
+  this.update = function () {
+     this.x = this.x + 10
+  }
+}
+
+Opposition ()
+
 
 
 
@@ -159,7 +186,7 @@ const updateSecondsLeft = () => {
 const gameOver = () => {
   clearInterval(clockInterval)
   $player.hide()
-  $opposition.hide() //have not programed yet
+  $oppositionPlayer.hide() //have not programed yet
   $gameScreen.hide()
   $display.hide()
   $gameOverBox.show() // show game over
@@ -173,7 +200,7 @@ const restart = () => {
   $scoreText.text('')
   $gameOverBox.hide()
   $player.show()
-  $opposition.show() //have not programed yet
+  $oppositionPlayer.show() //have not programed yet
   $gameScreen.show()
   $display.show()
   resetPlayerPosition()
