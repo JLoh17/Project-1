@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>unbelievable Tekkers</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type:"module" src="scripts/main.js" defer></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header>unbelievable Tekkers!</header>
+
+  <h2 id= "display">
+    Seconds left:
+    <span id="time-left">20.0</span>
+    | Score:
+    <span id="score">0</span>
+  </h2>
+
+  <div id="game-over-box" style="display: none;">
+    <h1 class="text-center">Game Over!</h1>
+    <h2 class="text-center">You scored <span id="score"></span> Points</h2>
+    <button type="button" id="restart-btn">Play again?</button>
+  </div>
+
+<!-- The starting instruction was initially placed inside the 2nd div, but was shifted to put under the game area instead to place it straight in the middle -->
+
+  <main>
+    <div id="game-screen">
+      <div id="game-area">
+          <h2 id="starting-instruction">Moving the arrow keys to start the game!</h2>
+
+
+        <div class="container">
+          <div class="penaltybox" id="test-side"></div>
+          <div class="penaltybox" id="test-mid"></div>
+          <div class="penaltybox" id="test-side"></div>
+          <div class="penaltybox" id="test-edge"></div>
+        </div>
+
+        <div class="container">
+          <div class="d-container"></div>
+          <div class="d-container" id="d-curve"></div>
+          <div class="d-container"></div>
+        </div>
+
+        <div class="remaining-area"></div>
+
+        <div class="container">
+          <div class="halfwayline" id="halfwayline-bord"></div>
+          <div class="halfwayline" id="halfwayline-curve"></div>
+          <div class="halfwayline" id="halfwayline-bord"></div>
+        </div>
+
+        <span id="player"></span>
+      </div>
+    </div>
+  </main>
+  <br>
+
+  <!-- <div class="button">
+    <button id="reset-button">Reset</button>
+  </div> -->
+
+  <div id="summary">
+    <p>You are an up-and-coming football player currently training with the first team. During the shooting drill portion of the training, your manager decides to come and watch. Dribble past the players and score as many goals as possible to impress him! </p>
+    <details class="instructions">
+      <summary>Instructions</summary>
+      <ul>
+        <li>Use the arrow keys to move the ball</li>
+        <li>Press spacebar to shoot at the goal</li>
+        <li>Touching the obstacles warrants a 5 second penalty</li>
+      </ul>
+    </details>
+  </div>
+      <footer></footer>
+</body>
+</html>
