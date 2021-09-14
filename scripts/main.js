@@ -5,7 +5,7 @@ const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
 const FPS = 60
 const LOOP_INTERVAL = Math.round(1000 / FPS)
-const VELOCITY = 1
+const VELOCITY = 10
 
 // Opposition player
 const OPPOSITION_WIDTH = 30
@@ -19,6 +19,7 @@ const OPPOSITION_GK_VELOCITY = 2
 
 // Time left constant
 const $timeLeftText = $('#time-left')
+const $displayScore = $('display-score')
 const INIT_SECONDS = 60
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = -5
@@ -26,7 +27,7 @@ const CLOCK_INVOKE_INTERVAL = 100
 
 // Game Over Box
 const $gameOverBox = $('#game-over-box')
-const $scoreText = $('#score')
+const $scoreText = $('#game-over-score')
 const $restartBTN = $('#restart-btn')
 
 // Game Screen Box
@@ -112,16 +113,7 @@ const randomInt = (max) => {
 //   if($opPlay1: position X> max-width), -1
 // }
 
-// Player collision - in progress
-// var rect1 = {x: 5, y: 5, width: 50, height: 50}
-// var rect2 = {x: 20, y: 10, width: 10, height: 10}
 
-// const playerCollision = () => {
-//   if (5 < 30 && 55 > 20 && 5 < 20 && 55 > 10) {
-//     points -=1
-//     timeLeft = timeLeft - PENALTY_SECONDS
-//   }
-// }
 
 const updateCharacterMovement = () => {
   const gameWidth = $gameArea.width()
@@ -151,14 +143,64 @@ const updateCharacterMovement = () => {
   $player.css('left', newX).css('top', newY)
 }
 
-const checkCollision = () => {
+const updateOpMovement = () => {
+  const gameWidth = $gameArea.width()
+  const gameHeight = $gameArea.height()
+  const {
+    position: { x, y },
+    movement: { left, right }
+  } = $oppositionPlayer
+  let newOpX = x
+  let newOpY = y
 
+  if (left) {
+    newOpX = x - VELOCITY < 0 ? 0 : newOpX - VELOCITY //left is 0 because the corner point is 0
+  }
+  if (right) {
+    newOpX = x + CHARACTER_WIDTH + VELOCITY > gameWidth ? gameWidth - CHARACTER_WIDTH : newOpX + VELOCITY
+  }
+
+  op.position.x = newOpX
+  op.position.y = newOpY
+  $oppositionPlayer.css('left', newOpX).css('top', newOpY)
+}
+
+// Player collision - in progress
+// var rect1 = {x: 5, y: 5, width: 50, height: 50}
+// var rect2 = {x: 20, y: 10, width: 10, height: 10}
+
+// if (rect1.x < rect2.x + rect2.width &&
+//    rect1.x + rect1.width > rect2.x &&
+//    rect1.y < rect2.y + rect2.height &&
+//    rect1.y + rect1.height > rect2.y) {
+
+// const playerCollision = () => {
+//   if (5 < 30 && 55 > 20 && 5 < 20 && 55 > 10) {
+//     points -=1
+//     timeLeft = timeLeft - PENALTY_SECONDS
+//   }
+// }
+
+const checkCollision = () => {
+  let playerDimension =
+  {x: player.position.x, y: player.position.y, width: CHARACTER_WIDTH, height: CHARACTER_HEIGHT,}
+
+  let oppositionDimension =
+  {x: opPlay.position.x, y: opPlay.position.y, width: OPPOSITION_WIDTH, height: OPPOSITION_HEIGHT}
+
+  if (playerDimension.x < oppositionDimension.x + oppositionDimension.width &&
+    playerDimension.x + playerDimension.width > oppositionDimension.x &&
+    playerDimension.y < oppositionDimension.y + oppositionDimension.height &&
+    playerDimension.y + playerDimension.height > oppositionDimension.y) {
+    points -=1
+    resetPlayerPosition()
+  }
 }
 
 // Every time this gets invoked, update character position/also includes collision
 const updateMovements = () => {
   updateCharacterMovement()
-  // updateOpMovement()
+  updateOpMovement()
   checkCollision()
 }
 
