@@ -19,35 +19,82 @@ const OPPOSITION_GK_VELOCITY = 2
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 2
+const INIT_SECONDS = 60
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = -5
 const CLOCK_INVOKE_INTERVAL = 100
 
-// Game over box
+// Game Over Box
 const $gameOverBox = $('#game-over-box')
 const $scoreText = $('#score')
 const $restartBTN = $('#restart-btn')
 
-let clockInterval, timeLeft, points
-
-const $player = $('#player')
-const $oppositionPlayer = $('.opposition-player')
-const $opP1 = $('#op-play1')
+// Game Screen Box
 const $gameScreen = $('#game-screen')
 const $gameArea = $('#game-area')
 const $display = $('#display')
 const $startingInstruction = $('#starting-instruction')
 
+// Players
+const $player = $('#player')
+const $opPlay1 = $('#op-play1')
+const $opPlay2 = $('#op-play2')
+const $opPlay3 = $('#op-play3')
+const $opPlay4 = $('#op-play4')
+const $opPlay5 = $('#op-play5')
+const $oppositionGk = $('#opposition-gk')
+const $oppositionPlayer = $('.opposition-player')
 
+// Other Global Values
+let clockInterval, timeLeft, points
+let gameLoop
+let player = {
+  position: { x: 225 - (CHARACTER_WIDTH / 2), y: 560 },
+  dimension: { w: CHARACTER_WIDTH, h: CHARACTER_HEIGHT},
+  movement: { left: false, up: false, right: false, down: false, shoot: false }
+}
+let opPlayers = [
+  {
+    $elem: $oppositionGk,
+    dimension: { w: OPPOSITION_GK_WIDTH, h: OPPOSITION_GK_HEIGHT  },
+    position: { y: 10 }
+  }, {
+    $elem: $opPlay1,
+    dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
+    position: { y: 100 }
+  }, {
+    $elem: $opPlay2,
+    dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
+    position: { y: 200 }
+  }, {
+    $elem: $opPlay3,
+    dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
+    position: { y: 300 }
+  }, {
+    $elem: $opPlay4,
+    dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
+    position: { y: 400 }
+  }, {
+    $elem: $opPlay5,
+    dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
+    position: { y: 500 }
+  }
+] //creates an array for opposition players
 
+//Game over
+const gameOver = () => {
+  clearInterval(clockInterval)
+  $player.hide()
+  $oppositionPlayer.hide() //have not programed yet
+  $gameScreen.hide()
+  $display.hide()
+  $gameOverBox.show() // show game over
+  $scoreText.text(points) //show points score
+}
 
 //Shooting function
 
-
-
 //Defining the goal
-
 
 //Scoring - pending
 const goal = () => {
@@ -56,47 +103,77 @@ const goal = () => {
   resetPlayerPosition()
 }
 
-// Game Loop
-let gameLoop
-
-// Character
-let player = {
-  position: { x: 225 - (CHARACTER_WIDTH / 2), y: 560 },
-  movement: { left: false, up: false, right: false, down: false, shoot: false }
+// Random function
+const randomInt = (max) => {
+  return Math.floor(Math.random() * max)
 }
 
-//Opposition player
-let Opposition = (x,y, OPPOSITION_VELOCITY, OPPOSITION_WIDTH, OPPOSITION_HEIGHT) => {
-  this.x = x;
-  this.y = y;
-  this.OPPOSITION_VELOCITY = OPPOSITION_VELOCITY;
-  this.OPPOSITION_WIDTH = OPPOSITION_WIDTH;
-  this.OPPOSITION_HEIGHT = OPPOSITION_HEIGHT;
-  this.update = function () {
-     this.x = this.x + 10
-  }
-}
+// let moveOpposition = () => {
+//   if($opPlay1: position X> max-width), -1
+// }
 
-Opposition ()
-
-
-
-
-//Player collision - in progress
+// Player collision - in progress
 // var rect1 = {x: 5, y: 5, width: 50, height: 50}
 // var rect2 = {x: 20, y: 10, width: 10, height: 10}
 
 // const playerCollision = () => {
-//   if (5 < 30 &&
-//       55 > 20 &&
-//       5 < 20 &&
-//       55 > 10) {
-//       points -=1
-//       timeLeft = timeLeft - PENALTY_SECONDS
+//   if (5 < 30 && 55 > 20 && 5 < 20 && 55 > 10) {
+//     points -=1
+//     timeLeft = timeLeft - PENALTY_SECONDS
 //   }
 // }
 
+const updateCharacterMovement = () => {
+  const gameWidth = $gameArea.width()
+  const gameHeight = $gameArea.height()
+  const {
+    position: { x, y },
+    movement: { left, up, right, down }
+  } = player
+  let newX = x
+  let newY = y
 
+  if (left) {
+    newX = x - VELOCITY < 0 ? 0 : newX - VELOCITY //left is 0 because the corner point is 0
+  }
+  if (up) {
+    newY = y - VELOCITY < 0 ? 0 : newY - VELOCITY //up is also 0 because top left = 0
+  }
+  if (right) {
+    newX = x + CHARACTER_WIDTH + VELOCITY > gameWidth ? gameWidth - CHARACTER_WIDTH : newX + VELOCITY
+  }
+  if (down) {
+    newY = y + CHARACTER_HEIGHT + VELOCITY > gameHeight ? gameHeight - CHARACTER_HEIGHT : newY + VELOCITY
+  }
+
+  player.position.x = newX
+  player.position.y = newY
+  $player.css('left', newX).css('top', newY)
+}
+
+const checkCollision = () => {
+
+}
+
+// Every time this gets invoked, update character position/also includes collision
+const updateMovements = () => {
+  updateCharacterMovement()
+  // updateOpMovement()
+  checkCollision()
+}
+
+// Update Seconds and Trigger Game Over
+const updateSecondsLeft = () => {
+  timeLeft = timeLeft - CLOCK_INVOKE_INTERVAL
+  $timeLeftText.text((timeLeft / 1000).toFixed(1))
+  if (timeLeft <= 0) gameOver()
+}
+
+//Start Clock
+const startClock = () => {
+  timeLeft = INIT_MS
+  clockInterval = setInterval(updateSecondsLeft, CLOCK_INVOKE_INTERVAL)
+}
 
 // Toggle which direction the character is moving to
 const setPlayerMovement = (value, keyCode, e) => {
@@ -136,61 +213,16 @@ const handleKeyUp = (e) => {
   setPlayerMovement(false, e.keyCode, e)
 }
 
-// Every time this gets invoked, update character position/also includes collision
-const updateMovements = () => {
-  const gameWidth = $gameArea.width()
-  const gameHeight = $gameArea.height()
-  const {
-    position: { x, y },
-    movement: { left, up, right, down }
-  } = player
-  let newX = x
-  let newY = y
-
-  if (left) {
-    newX = x - VELOCITY < 0 ? 0 : newX - VELOCITY //left is 0 because the corner point is 0
-  }
-  if (up) {
-    newY = y - VELOCITY < 0 ? 0 : newY - VELOCITY //up is also 0 because top left = 0
-  }
-  if (right) {
-    newX = x + CHARACTER_WIDTH + VELOCITY > gameWidth ? gameWidth - CHARACTER_WIDTH : newX + VELOCITY
-  }
-  if (down) {
-    newY = y + CHARACTER_HEIGHT + VELOCITY > gameHeight ? gameHeight - CHARACTER_HEIGHT : newY + VELOCITY
-  }
-
-  player.position.x = newX
-  player.position.y = newY
-  $player.css('left', newX).css('top', newY)
-}
-
 const resetPlayerPosition = () => {
-  player.position.x = 225 - ((CHARACTER_WIDTH) / 2)
+  player.position.x = 225 - ((player.dimension.w) / 2)
   player.position.y = 560
 }
 
-//Start Clock
-const startClock = () => {
-  timeLeft = INIT_MS
-  clockInterval = setInterval(updateSecondsLeft, CLOCK_INVOKE_INTERVAL)
-}
-
-const updateSecondsLeft = () => {
-  timeLeft = timeLeft - CLOCK_INVOKE_INTERVAL
-  $timeLeftText.text((timeLeft / 1000).toFixed(1))
-  if (timeLeft <= 0) gameOver()
-}
-
-//Game over
-const gameOver = () => {
-  clearInterval(clockInterval)
-  $player.hide()
-  $oppositionPlayer.hide() //have not programed yet
-  $gameScreen.hide()
-  $display.hide()
-  $gameOverBox.show() // show game over
-  $scoreText.text(points) //show points score
+const setOpposition = () => {
+  opPlayers.forEach((opPlay) => {
+    opPlay.position.x = randomInt(450 - (opPlay.dimension.w / 2))
+    opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x)
+  })
 }
 
 //Restart
@@ -203,9 +235,9 @@ const restart = () => {
   $oppositionPlayer.show() //have not programed yet
   $gameScreen.show()
   $display.show()
-  resetPlayerPosition()
   $startingInstruction.show()
-
+  resetPlayerPosition()
+  setOpposition()
 }
 
 const init = () => {
@@ -213,6 +245,7 @@ const init = () => {
   $(document).on('keyup', handleKeyUp)
   $restartBTN.on('click', restart)
   gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
+  restart()
 }
 
 init()
