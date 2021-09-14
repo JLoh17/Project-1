@@ -5,7 +5,8 @@ const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
 const FPS = 60
 const LOOP_INTERVAL = Math.round(1000 / FPS)
-const VELOCITY = 10
+const VELOCITY = 5
+const INVINCIBLE_TIME = 1000
 
 // Opposition player
 const OPPOSITION_WIDTH = 30
@@ -19,10 +20,10 @@ const OPPOSITION_GK_VELOCITY = 2
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const $displayScore = $('display-score')
 const INIT_SECONDS = 60
 const INIT_MS = INIT_SECONDS * 1000
-const PENALTY_SECONDS = -5
+const PENALTY_SECONDS = 5
+const PENALTY_MS = PENALTY_SECONDS * 1000
 const CLOCK_INVOKE_INTERVAL = 100
 
 // Game Over Box
@@ -35,6 +36,12 @@ const $gameScreen = $('#game-screen')
 const $gameArea = $('#game-area')
 const $display = $('#display')
 const $startingInstruction = $('#starting-instruction')
+const gameWidth = $gameArea.width()
+const gameHeight = $gameArea.height()
+
+// Score
+const $displayScore = $('#display-score')
+const PENALTY_POINT = 1
 
 // Players
 const $player = $('#player')
@@ -52,7 +59,8 @@ let gameLoop
 let player = {
   position: { x: 225 - (CHARACTER_WIDTH / 2), y: 560 },
   dimension: { w: CHARACTER_WIDTH, h: CHARACTER_HEIGHT},
-  movement: { left: false, up: false, right: false, down: false, shoot: false }
+  movement: { left: false, up: false, right: false, down: false, shoot: false },
+  lastHit: 0
 }
 let opPlayers = [
   {
@@ -113,11 +121,7 @@ const randomInt = (max) => {
 //   if($opPlay1: position X> max-width), -1
 // }
 
-
-
 const updateCharacterMovement = () => {
-  const gameWidth = $gameArea.width()
-  const gameHeight = $gameArea.height()
   const {
     position: { x, y },
     movement: { left, up, right, down }
@@ -144,56 +148,45 @@ const updateCharacterMovement = () => {
 }
 
 const updateOpMovement = () => {
-  const gameWidth = $gameArea.width()
-  const gameHeight = $gameArea.height()
   const {
     position: { x, y },
-    movement: { left, right }
-  } = $oppositionPlayer
-  let newOpX = x
-  let newOpY = y
+    movement: { left, up, right, down }
+  } = player
+  let newX = x
+  let newY = y
 
   if (left) {
-    newOpX = x - VELOCITY < 0 ? 0 : newOpX - VELOCITY //left is 0 because the corner point is 0
+    newX = x - VELOCITY < 0 ? 0 : newX - VELOCITY //left is 0 because the corner point is 0
   }
   if (right) {
-    newOpX = x + CHARACTER_WIDTH + VELOCITY > gameWidth ? gameWidth - CHARACTER_WIDTH : newOpX + VELOCITY
+    newX = x + OPPOSITION_WIDTH + VELOCITY > gameWidth ? gameWidth - OPPOSITION_WIDTH : newX + VELOCITY
   }
 
-  op.position.x = newOpX
-  op.position.y = newOpY
-  $oppositionPlayer.css('left', newOpX).css('top', newOpY)
+
+  player.position.x = newX
+  player.position.y = newY
+  $player.css('left', newX).css('top', newY)
 }
 
-// Player collision - in progress
-// var rect1 = {x: 5, y: 5, width: 50, height: 50}
-// var rect2 = {x: 20, y: 10, width: 10, height: 10}
+const checkCollision = () => { //will always run because this is in the function updateMovements
+  const timeNow = Date.now() //shows unix date and time in numbers
+  const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow //this makes the assignment tht lastHit + invincible_time > timeNow
 
-// if (rect1.x < rect2.x + rect2.width &&
-//    rect1.x + rect1.width > rect2.x &&
-//    rect1.y < rect2.y + rect2.height &&
-//    rect1.y + rect1.height > rect2.y) {
+  if (!isInvincible) {  //If lastHit + invincible_time < timeNow, then do the following
+    $player.removeClass('flashing') //removing the flashing icon
 
-// const playerCollision = () => {
-//   if (5 < 30 && 55 > 20 && 5 < 20 && 55 > 10) {
-//     points -=1
-//     timeLeft = timeLeft - PENALTY_SECONDS
-//   }
-// }
-
-const checkCollision = () => {
-  let playerDimension =
-  {x: player.position.x, y: player.position.y, width: CHARACTER_WIDTH, height: CHARACTER_HEIGHT,}
-
-  let oppositionDimension =
-  {x: opPlay.position.x, y: opPlay.position.y, width: OPPOSITION_WIDTH, height: OPPOSITION_HEIGHT}
-
-  if (playerDimension.x < oppositionDimension.x + oppositionDimension.width &&
-    playerDimension.x + playerDimension.width > oppositionDimension.x &&
-    playerDimension.y < oppositionDimension.y + oppositionDimension.height &&
-    playerDimension.y + playerDimension.height > oppositionDimension.y) {
-    points -=1
-    resetPlayerPosition()
+    opPlayers.forEach((opPlay) => { //iterates the player against each opposition to check for collisions
+      if (player.position.x < opPlay.position.x + opPlay.dimension.w &&
+          player.position.x + player.dimension.w > opPlay.position.x &&
+          player.position.y < opPlay.position.y + opPlay.dimension.h &&
+          player.position.y + player.dimension.h > opPlay.position.y) {
+        $player.addClass('flashing') //flashing for 2 seconds
+        player.lastHit = timeNow //compares .lastHit + INVINCIBLE_TIME to this, and if longer than X seconds then the belows will occur
+        timeLeft -= PENALTY_MS
+        points -= PENALTY_POINT
+        $displayScore.text(points)
+      }
+    })
   }
 }
 
@@ -261,7 +254,7 @@ const resetPlayerPosition = () => {
 }
 
 const setOpposition = () => {
-  opPlayers.forEach((opPlay) => {
+  opPlayers.forEach((opPlay) => { //inputs the x co-ordinate into the opPlayers array
     opPlay.position.x = randomInt(450 - (opPlay.dimension.w / 2))
     opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x)
   })
@@ -272,6 +265,7 @@ const restart = () => {
   clockInterval = null
   points = 0
   $scoreText.text('')
+  $displayScore.text('0')
   $gameOverBox.hide()
   $player.show()
   $oppositionPlayer.show() //have not programed yet
