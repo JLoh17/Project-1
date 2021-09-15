@@ -73,28 +73,28 @@ let opPlayers = [
     $elem: $opPlay1,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 100 },
-    levelVelocity: 3,
+    levelVelocity: 2.5,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay2,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 200 },
-    levelVelocity: 3,
+    levelVelocity: 2.5,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay3,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 300 },
-    levelVelocity: 3,
+    levelVelocity: 2.5,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay4,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 400 },
-    levelVelocity: 3,
+    levelVelocity: 2.5,
     lBound: 0,
     rBound: gameWidth
   }, {
@@ -193,7 +193,7 @@ const updateCharacterMovement = () => {
 }
 
 const opMovement = () => {
-  opPlayers.forEach((opPlay) => {
+  opPlayers.forEach((opPlay) => { //multiple for Arrays; singular for parameter because targeting individually
     const {
       $elem,
       dimension: { w },
@@ -202,27 +202,26 @@ const opMovement = () => {
       lBound,
       rBound
     } = opPlay
-
     let newX = x
 
-    if (velocity < 0) {
+    if (velocity < 0) { //if velocity is heading to the left....
       if (x + velocity < lBound) {
         newX = lBound
-        opPlay.velocity = velocity * -1
+        opPlay.velocity = velocity * -1 //switch and move to the right
       } else {
-        newX = newX + velocity
+        newX = newX + velocity //keep moving to the left
       }
-    } else {
+    } else { //if velocity is heading to the right...
       if (x + w + velocity > rBound) {
         newX = rBound - w
-        opPlay.velocity = velocity * -1
+        opPlay.velocity = velocity * -1 //switch and move to the left
       } else {
-        newX = newX + velocity
+        newX = newX + velocity //keep moving to the left
       }
     }
 
-    opPlay.position.x = newX
-    $elem.css('left', newX)
+    opPlay.position.x = newX // updates the new X position in the array
+    $elem.css('left', newX) // replaces the left position in CSS
   })
 }
 
@@ -313,8 +312,8 @@ const resetPlayerPosition = () => {
 
 const setOpposition = () => {
   opPlayers.forEach((opPlay) => { //inputs the x co-ordinate into the opPlayers array
-    const randomX = randomInt(420 - (opPlay.dimension.w / 2))
-    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity
+    const randomX = randomInt(420 - (opPlay.dimension.w / 2)) //sets the random X position
+    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity //sets an IF function if left or right
     opPlay.position.x =  randomX //max width of the game minus biggest width of the opponent
     opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x)
   })
