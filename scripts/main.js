@@ -3,7 +3,7 @@
 // Character constant
 const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
-const FPS = 60
+const FPS = 30
 const LOOP_INTERVAL = Math.round(1000 / FPS)
 const VELOCITY = 2
 const INVINCIBLE_TIME = 1000
@@ -14,11 +14,17 @@ const OPPOSITION_HEIGHT = 30
 
 // Opposition GK
 const OPPOSITION_GK_WIDTH = 20
-const OPPOSITION_GK_HEIGHT = 20
+const OPPOSITION_GK_HEIGHT = 30
+
+// Ball constant
+const BALL_WIDTH = 7
+const BALL_HEIGHT = 7
+const BALL_VELOCITY = 4
+const BALL_TIME = 2000
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 60
+const INIT_SECONDS = 10
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = 5
 const PENALTY_MS = PENALTY_SECONDS * 1000
@@ -50,17 +56,28 @@ const $opPlay4 = $('#op-play4')
 const $opPlay5 = $('#op-play5')
 const $oppositionGk = $('#opposition-gk')
 const $oppositionPlayer = $('.opposition-player')
-const ball = $('#ball')
+const $ball = $('#ball')
 
 // Other Global Values
 let clockInterval, timeLeft, points, shooter
 let gameLoop
+
+let fBall = {
+  $elemBall: ball,
+  position: { },
+  dimension: { w: BALL_WIDTH, h: BALL_HEIGHT },
+  ballVelocity: BALL_VELOCITY,
+  yBound: gameHeight,
+  ballTime: BALL_TIME
+}
+
 let player = {
   position: { x: 225 - (CHARACTER_WIDTH / 2), y: 560 },
   dimension: { w: CHARACTER_WIDTH, h: CHARACTER_HEIGHT},
   movement: { left: false, up: false, right: false, down: false, shoot: false },
   lastHit: 0
 }
+
 let opPlayers = [
   {
     $elem: $oppositionGk,
@@ -105,7 +122,9 @@ let opPlayers = [
     lBound: 0,
     rBound: gameWidth
   }
-] // creates an array for opposition players
+]
+
+// creates an array for opposition players
 
 // const levelMapping = {
 //   1: [
@@ -131,33 +150,55 @@ const gameOver = () => {
   $scoreText.text(points) //show points score
 }
 
-// Shooting function
-const shoot = (e) => {
-  let shootIndex = updateCharacterMovement() //current index of player
-  const shootball = () => {
-    // remove ball from current starting position in the class
-    // ball += Y
-    // add ball
-    // if hit area, flash animation with alert Goal, then reset player position and clear the ball
-    // if miss and over the play area, clear interval
-  }
-}
-
-//Defining the ball position
-const ballPosition = (x,y) => {
-  x += player.position.x
-  y += player.position.y
-}
+// Shooting reaction
+// 4 results:
+// Ball enter goals = +1 point
+// Ball goes offscreen
+// Ball hits opposition
+// Ball hits none goal area
 
 
+// Shooting path
+// const ballMovement = () => {
+//   const {
+    // dimension: { w, h },
+//     position: { y },
+//     ballVelocity,
+//   } = ball
+//   let newY = y
 
-// //Scoring - pending
+//   newY = y - ballVelocity < 0 ? 0 : newY - ballVelocity
+
+//   ball.position.y = newY
+//   ball.css('top', newY)
+// }
+
+// const characterFire = () => {
+
+//   if (player.movement.shoot) {
+//     const charMidPoint = player.dimension.w / 2
+//     ball = charMidPoint
+
+//     const timeNow = Date.now()
+//     const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow
+//     player.lastHit = timeNow
+//   }
+// }
+
+
+  // remove ball from current starting position in the class
+  // ball += Y
+  // add ball
+  // if hit area, flash animation with alert Goal, then reset player position and clear the ball
+  // if miss and over the play area, clear interval
+
+  //Scoring - pending
 // const goal = () => {
 // if (ball.x + ball.size > canvas.width) {
 //     if(ball.100 > x && ball.y < 350)
 //   points +=1
 //   $displayScore.text(points)
-//   // levelup - increase velocity
+  // levelup - increase velocity
 //   resetPlayerPosition()
 // }
 
@@ -169,7 +210,7 @@ const randomInt = (max) => {
 const updateCharacterMovement = () => {
   const {
     position: { x, y },
-    movement: { left, up, right, down }
+    movement: { left, up, right, down, shoot }
   } = player
   let newX = x
   let newY = y
@@ -186,10 +227,17 @@ const updateCharacterMovement = () => {
   if (down) {
     newY = y + CHARACTER_HEIGHT + VELOCITY > gameHeight ? gameHeight - CHARACTER_HEIGHT : newY + VELOCITY
   }
+  if (shoot) {
+    $ball.show()
+  }
 
   player.position.x = newX
   player.position.y = newY
+  fBall.position.x = player.position.x + 7
+  fBall.position.y = player.position.y - 10
   $player.css('left', newX).css('top', newY)
+  $ball.css('left', fBall.position.x).css('top', fBall.position.y)
+
 }
 
 const opMovement = () => {
@@ -286,10 +334,10 @@ const setPlayerMovement = (value, keyCode, e) => {
       e.preventDefault()
       player.movement.down = value
       break
-    case 32: //spacebar
+    case 32: //shoot
       e.preventDefault()
       player.movement.shoot = value
-      break// to shoot
+      break
     }
 }
 
@@ -313,9 +361,9 @@ const resetPlayerPosition = () => {
 const setOpposition = () => {
   opPlayers.forEach((opPlay) => { //inputs the x co-ordinate into the opPlayers array
     const randomX = randomInt(420 - (opPlay.dimension.w / 2)) //sets the random X position
-    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity //sets an IF function if left or right
     opPlay.position.x =  randomX //max width of the game minus biggest width of the opponent
     opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x)
+    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity //sets an IF function if left or right
   })
 }
 
@@ -323,7 +371,6 @@ const setOpposition = () => {
 const restart = () => {
   clockInterval = null
   points = 0
-  $scoreText.text('')
   $displayScore.text('0')
   $gameOverBox.hide()
   $player.show()
@@ -333,6 +380,7 @@ const restart = () => {
   $startingInstruction.show()
   resetPlayerPosition()
   setOpposition()
+  $ball.hide()
 }
 
 const init = () => {
