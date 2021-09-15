@@ -153,54 +153,29 @@ const gameOver = () => {
 // Shooting reaction
 // 4 results:
 // Ball enter goals = +1 point
-// Ball goes offscreen
-// Ball hits opposition
-// Ball hits none goal area
-
-
-// Shooting path
-// const ballMovement = () => {
-//   const {
-    // dimension: { w, h },
-//     position: { y },
-//     ballVelocity,
-//   } = ball
-//   let newY = y
-
-//   newY = y - ballVelocity < 0 ? 0 : newY - ballVelocity
-
-//   ball.position.y = newY
-//   ball.css('top', newY)
-// }
-
-// const characterFire = () => {
-
-//   if (player.movement.shoot) {
-//     const charMidPoint = player.dimension.w / 2
-//     ball = charMidPoint
-
-//     const timeNow = Date.now()
-//     const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow
-//     player.lastHit = timeNow
-//   }
-// }
-
-
-  // remove ball from current starting position in the class
-  // ball += Y
-  // add ball
-  // if hit area, flash animation with alert Goal, then reset player position and clear the ball
-  // if miss and over the play area, clear interval
-
-  //Scoring - pending
 // const goal = () => {
 // if (ball.x + ball.size > canvas.width) {
 //     if(ball.100 > x && ball.y < 350)
 //   points +=1
 //   $displayScore.text(points)
-  // levelup - increase velocity
+// levelup - increase velocity
 //   resetPlayerPosition()
-// }
+
+// Ball goes offscreen
+// Ball hits opposition
+// Ball hits none goal area
+
+const characterFire = () => {
+
+  if (player.movement.shoot) {
+    const charMidPoint = player.dimension.w / 2
+    ball = charMidPoint
+
+    const timeNow = Date.now()
+    const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow
+    player.lastHit = timeNow
+  }
+}
 
 // Random function
 const randomInt = (max) => {
@@ -217,17 +192,18 @@ const updateCharacterMovement = () => {
 
   if (left) {
     newX = x - VELOCITY < 0 ? 0 : newX - VELOCITY //left is 0 because the corner point is 0
+    $ball.show()
   }
   if (up) {
     newY = y - VELOCITY < 0 ? 0 : newY - VELOCITY //up is also 0 because top left = 0
+    $ball.show()
   }
   if (right) {
     newX = x + CHARACTER_WIDTH + VELOCITY > gameWidth ? gameWidth - CHARACTER_WIDTH : newX + VELOCITY
+    $ball.show()
   }
   if (down) {
     newY = y + CHARACTER_HEIGHT + VELOCITY > gameHeight ? gameHeight - CHARACTER_HEIGHT : newY + VELOCITY
-  }
-  if (shoot) {
     $ball.show()
   }
 
