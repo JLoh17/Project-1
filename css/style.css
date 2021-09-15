@@ -64,25 +64,34 @@ main {
   width: 90px;
 }
 
-#test-side {
+#pen-side {
   flex-grow: 1;
   position: relative;
 }
 
-#test-mid {
+#pen-mid {
   border-left: 3px solid white;
   border-bottom: 3px solid white;
   border-right: 3px solid white;
   width: 270px;
 }
 
-#test-edge {
+#pen-edge {
   position: absolute;
   border-left: 3px solid white;
   border-right: 3px solid white;
   border-bottom: 3px solid white;
   height: 40px;
   left: 50%;
+  transform: translate(-50%);
+}
+
+#goal {
+  position: absolute;
+  border: 3px solid blue;
+  height: 0px;
+  left: 50%;
+  top: -3px;
   transform: translate(-50%);
 }
 
