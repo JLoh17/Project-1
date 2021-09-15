@@ -140,8 +140,8 @@ div~p {
 }
 
 #ball {
-  height: 10px;
-  width: 10px;
+  height: 5px;
+  width: 5px;
   background-color: white;
   position: absolute;
 }
