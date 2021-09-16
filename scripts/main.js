@@ -3,9 +3,9 @@
 // Character constant
 const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
-const FPS = 30
+const FPS = 60
 const LOOP_INTERVAL = Math.round(1000 / FPS)
-const VELOCITY = 2
+const VELOCITY = 5
 const INVINCIBLE_TIME = 1000
 
 // Opposition player
@@ -58,9 +58,20 @@ const $oppositionGk = $('#opposition-gk')
 const $oppositionPlayer = $('.opposition-player')
 const $ball = $('#ball')
 
+// Goal
+const $goal = $('#goal')
+const GOAL_HEIGHT = -2
+const GOAL_WIDTH = 96
+
 // Other Global Values
 let clockInterval, timeLeft, points, shooter
 let gameLoop
+
+let goal = {
+  $elemGoal: $goal,
+  position: { },
+  dimension: {w: GOAL_WIDTH, h: GOAL_HEIGHT},
+}
 
 let fBall = {
   $elemBall: $ball,
@@ -153,25 +164,41 @@ const gameOver = () => {
   opMovement()
 }
 
-// Shooting reaction
-// 4 results:
-// Ball enter goals = +1 point
-// const goal = () => {
-// if (ball.x + ball.size > canvas.width) {
-//     if(ball.100 > x && ball.y < 350)
-//   points +=1
-//   $displayScore.text(points)
-// levelup - increase velocity
-//   resetPlayerPosition()
+const shotOutcome = () => {
+// Goal!
+  if (fBall.position.x < 177 + GOAL_WIDTH &&
+      fBall.position.x + fBall.dimension.w > 177 &&
+      fBall.position.y < 0 + GOAL_HEIGHT &&
+      fBall.position.y + fBall.dimension.h > 0){
+        fBall.shot = false
+        alert ('You scored!')
+        points++
+        $displayScore.text(points)
+        characterShoot()
+        // opPlayers.levelVelocity = opPlayers.levelVelocity + 1 <- doesn't work
+        resetPlayerPosition()
+    }
 
-// Ball goes offscreen
-// if (y - ballVelocity < gameHeight) {
-//   0
-// } else {
+// // Out of bounds - Left Side
+//   if (ball position Y < gameWidth) {
+//     characterShoot()
+//   }
 
-// Ball hits opposition
+// // Out of bounds - Right Side
+//   if (ball posiition Y < gameWidth) {
+//     characterShoot()
+//   }
 
-// Ball hits none goal area
+
+// Hits opposition or GK
+  if (fBall.position.x < opPlay.position.x + opPlay.dimension.w &&
+          fBall.position.x + fBall.dimension.w > opPlay.position.x &&
+          fBall.position.y < opPlay.position.y + opPlay.dimension.h &&
+          fBall.position.y + fBall.dimension.h > opPlay.position.y){
+    fBall.shot = false
+    characterShoot()
+  }
+}
 
 const characterShoot = (e) => {
   const {
@@ -289,6 +316,7 @@ const updateMovements = () => {
   updateCharacterMovement()
   opMovement()
   characterShoot()
+  shotOutcome()
   checkCollision()
 }
 
