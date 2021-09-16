@@ -138,7 +138,7 @@ let opPlayers = [
   }
 ]
 
-// Game over
+// Game over process
 const gameOver = () => {
   clearInterval(clockInterval)
   clearInterval(gameLoop)
@@ -178,8 +178,7 @@ const shotOutcome = () => {
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
     $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
-    setTimeout(() => {
-      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    setTimeout(() => {$textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
     }, 1500);
   }
 
@@ -191,8 +190,7 @@ const shotOutcome = () => {
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
     $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
-    setTimeout(() => {
-      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    setTimeout(() => {$textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
     }, 1000);
   }
 
@@ -204,8 +202,7 @@ const shotOutcome = () => {
         fBall.position.y + fBall.dimension.h > opPlay.position.y){
     fBall.shot = false
     $textArea.addClass('flashing-text').addClass('red').text('You hit the opposition!!')
-    setTimeout(() => {
-      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    setTimeout(() => {textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
     }, 1500);
     }
   })
@@ -233,11 +230,12 @@ const characterShoot = (e) => {
   $ball.css('left', newX).css('top', newY)
 }
 
-// Random function
+// Generates a random number
 const randomInt = (max) => {
   return Math.floor(Math.random() * max)
 }
 
+// Moves the character to the new position based on key events. Also makes sure the player is limited within the walls of the game.
 const updateCharacterMovement = () => {
   const {
     position: { x, y },
@@ -267,8 +265,9 @@ const updateCharacterMovement = () => {
   $player.css('left', newX).css('top', newY)
 }
 
+// Moves the opposition left and right based on where it was generated on the X-axis upon game start. If it is generated past the half way point, the opposition will move in that direction and vice versa.
 const opMovement = () => {
-  opPlayers.forEach((opPlay) => { //multiple for Arrays; singular for parameter because targeting individually
+  opPlayers.forEach((opPlay) => {
     const {
       $elem,
       dimension: { w },
@@ -279,19 +278,19 @@ const opMovement = () => {
     } = opPlay
     let newX = x
 
-    if (velocity < 0) { //if velocity is heading to the left....
+    if (velocity < 0) { // if opposition is heading to the left....
       if (x + velocity < lBound) {
         newX = lBound
-        opPlay.velocity = velocity * -1 //switch and move to the right
+        opPlay.velocity = velocity * -1 // switch and move to the right if it is generated on the right side of the wall
       } else {
-        newX = newX + velocity //keep moving to the left
+        newX = newX + velocity // keep moving to the left
       }
-    } else { //if velocity is heading to the right...
+    } else { // if opposition is heading to the right...
       if (x + w + velocity > rBound) {
         newX = rBound - w
-        opPlay.velocity = velocity * -1 //switch and move to the left
+        opPlay.velocity = velocity * -1 // switch and move to the left if it is generated on the left side of the wall
       } else {
-        newX = newX + velocity //keep moving to the left
+        newX = newX + velocity // keep moving to the left
       }
     }
 
@@ -300,20 +299,20 @@ const opMovement = () => {
   })
 }
 
-const checkCollision = () => { //will always run because this is in the function updateMovements
-  const timeNow = Date.now() //shows unix date and time in numbers
-  const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow //this makes the assignment tht lastHit + invincible_time > timeNow
+const checkCollision = () => { // will always run because this is in the function updateMovements
+  const timeNow = Date.now() // shows unix date and time in numbers
+  const isInvincible = (player.lastHit + INVINCIBLE_TIME) > timeNow // this makes the assignment tht lastHit + invincible_time > timeNow
 
-  if (!isInvincible) {  //If lastHit + invincible_time < timeNow, then do the following
-    $player.removeClass('flashing') //removing the flashing icon
+  if (!isInvincible) {  // If lastHit + invincible_time < timeNow, then do the following
+    $player.removeClass('flashing') // removing the flashing icon when hitting the player collides with the opposition
 
-    opPlayers.forEach((opPlay) => { //iterates the player against each opposition to check for collisions
+    opPlayers.forEach((opPlay) => { // iterates the player against each opposition to check for collisions
       if (player.position.x < opPlay.position.x + opPlay.dimension.w &&
           player.position.x + player.dimension.w > opPlay.position.x &&
           player.position.y < opPlay.position.y + opPlay.dimension.h &&
           player.position.y + player.dimension.h > opPlay.position.y) {
-        $player.addClass('flashing') //flashing for 2 seconds
-        player.lastHit = timeNow //For every seconds, this below will happen; compares .lastHit + INVINCIBLE_TIME to this. Basically this makes sure the deduction happens every 1 second rather than every millisecond. It should be equal as < will rush it every millisecond.
+        $player.addClass('flashing') // flashing for 2 seconds
+        player.lastHit = timeNow // It compares .lastHit + INVINCIBLE_TIME to this. Basically this makes sure the deduction happens every 1 second rather than every millisecond. It should be equal as < will rush it every millisecond.
         timeLeft -= PENALTY_MS
         points -= PENALTY_POINT
         $displayScore.text(points)
@@ -322,7 +321,7 @@ const checkCollision = () => { //will always run because this is in the function
   }
 }
 
-// Every time this gets invoked, update character position/also includes collision
+// Every time this gets invoked, update character position/also includes collision. This is a general purpose container for all moving, shooting and collision events.
 const updateMovements = () => {
   updateCharacterMovement()
   opMovement()
@@ -338,13 +337,13 @@ const updateSecondsLeft = () => {
   if (timeLeft <= 0) gameOver()
 }
 
-//Start Clock
+// Start Clock
 const startClock = () => {
   timeLeft = INIT_MS
   clockInterval = setInterval(updateSecondsLeft, CLOCK_INVOKE_INTERVAL)
 }
 
-// Toggle which direction the character is moving to
+// Toggle which direction the character is moving to based on the key event
 const setPlayerMovement = (value, keyCode, e) => {
   switch (keyCode) {
     case 37:
@@ -382,6 +381,7 @@ const handleKeyUp = (e) => {
   setPlayerMovement(false, e.keyCode, e)
 }
 
+// Resets the player position every time a goal is scored, or upon restart
 const resetPlayerPosition = () => {
   player.position.x = 225 - ((player.dimension.w) / 2)
   player.position.y = 560
@@ -392,20 +392,20 @@ const resetPlayerPosition = () => {
 
 
 const setOpposition = () => {
-  opPlayers.forEach((opPlay) => { //inputs the x co-ordinate into the opPlayers array
-    const randomX = randomInt(420 - (opPlay.dimension.w / 2)) //sets the random X position
-    opPlay.position.x =  randomX //max width of the game minus biggest width of the opponent
-    opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x)
-    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity //sets an IF function if left or right
+  opPlayers.forEach((opPlay) => { // inputs the x co-ordinate into the opPlayers array
+    const randomX = randomInt(420 - (opPlay.dimension.w / 2)) // sets the random X position
+    opPlay.position.x =  randomX // max width of the game minus biggest width of the opponent
+    opPlay.$elem.css('top', opPlay.position.y).css('left', opPlay.position.x) //sets the position of the opposition upon starting
+    opPlay.velocity = randomX < (210 - opPlay.dimension.w) ? opPlay.levelVelocity * -1 : opPlay.levelVelocity // sets an IF function that was used under the opMovement variable
   })
 }
 
-//Reset the ball due to glitch
+// Reset the ball due to glitch
 const resetBall = () => {
   fBall.shot = false
 }
 
-//Restart
+// Restart
 const restart = () => {
   gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
   points = 0
