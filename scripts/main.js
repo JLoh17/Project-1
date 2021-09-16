@@ -24,7 +24,7 @@ const BALL_TIME = 2000
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 100
+const INIT_SECONDS = 2
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = 5
 const PENALTY_MS = PENALTY_SECONDS * 1000
@@ -60,7 +60,7 @@ const $ball = $('#ball')
 
 // Goal
 const $goal = $('#goal')
-const GOAL_HEIGHT = -2
+const GOAL_HEIGHT = 0
 const GOAL_WIDTH = 96
 
 // Other Global Values
@@ -154,15 +154,16 @@ let opPlayers = [
 // Game over
 const gameOver = () => {
   clearInterval(clockInterval)
+  fBall.shot = false
   $player.hide()
   $ball.hide()
-  $oppositionPlayer.hide() //have not programed yet
+  $oppositionPlayer.hide()
   $gameScreen.hide()
   $display.hide()
   $gameOverBox.show() // show game over
   $scoreText.text(points) //show points score
-  opMovement()
 }
+
 
 const shotOutcome = () => {
 // Goal!
@@ -170,36 +171,48 @@ const shotOutcome = () => {
       fBall.position.x + fBall.dimension.w > 177 &&
       fBall.position.y < 0 + GOAL_HEIGHT &&
       fBall.position.y + fBall.dimension.h > 0){
-        fBall.shot = false
-        alert ('You scored!')
-        points++
-        $displayScore.text(points)
-        characterShoot()
-        // opPlayers.levelVelocity = opPlayers.levelVelocity + 1 <- doesn't work
-        resetPlayerPosition()
+    fBall.shot = false
+    alert ('You scored!')
+    points++
+    $displayScore.text(points)
+    characterShoot()
+    resetPlayerPosition()
+    opPlayers[0].levelVelocity++
     }
 
-// // Out of bounds - Left Side
-//   if (ball position Y < gameWidth) {
-//     characterShoot()
-//   }
-
-// // Out of bounds - Right Side
-//   if (ball posiition Y < gameWidth) {
-//     characterShoot()
-//   }
-
-
-// Hits opposition or GK
-  if (fBall.position.x < opPlay.position.x + opPlay.dimension.w &&
-          fBall.position.x + fBall.dimension.w > opPlay.position.x &&
-          fBall.position.y < opPlay.position.y + opPlay.dimension.h &&
-          fBall.position.y + fBall.dimension.h > opPlay.position.y){
+// Out of bounds - Left Side before the goal
+// Deleting all the 0s and non functions caused the player not to fire on the left side. If it works, don't break it!
+  if (fBall.position.x < 0 + 177 &&
+      fBall.position.x + fBall.dimension.w > 0 &&
+      fBall.position.y < 0 &&
+      fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
     characterShoot()
   }
+
+// Out of bounds - Right Side after the goal
+// Ditto for below
+  if (fBall.position.x < 273 + 177 &&
+      fBall.position.x + fBall.dimension.w > 273 &&
+      fBall.position.y < 0 &&
+      fBall.position.y + fBall.dimension.h > 0) {
+    fBall.shot = false
+    characterShoot()
+  }
+
+// Hits opposition or GK
+  opPlayers.forEach((opPlay) => {
+    if (fBall.position.x < opPlay.position.x + opPlay.dimension.w &&
+        fBall.position.x + fBall.dimension.w > opPlay.position.x &&
+        fBall.position.y < opPlay.position.y + opPlay.dimension.h &&
+        fBall.position.y + fBall.dimension.h > opPlay.position.y){
+      fBall.shot = false
+      characterShoot()
+    }
+  })
 }
 
+// Creates the shoot function and gets the ball to follow the player
 const characterShoot = (e) => {
   const {
     position: { x, y },
