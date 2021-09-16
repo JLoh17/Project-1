@@ -22,6 +22,17 @@ h2 {
   margin: 5px
 }
 
+.text-area {
+  text-align: center;
+  top: 250px;
+  left: 500px;
+}
+
+.red {
+  color: red;
+  font-weight: bold;
+}
+
 #game-over-box {
   text-align: center;
 }
@@ -112,6 +123,7 @@ main {
 .remaining-area {
   height: 330px;
   margin: 0px;
+  position: relative;
 }
 
 div~p {
@@ -163,18 +175,23 @@ div~p {
   position: absolute;
 }
 
+/* game over button */
 .button {
   display: flex;
   justify-content: center;
 }
 
-#reset-button {
+#reset-ball {
+  display: flex;
+  align-items: center;
+  align-content: center;
   position: absolute;
-  top: 230px;
+  top: 250px;
   right: 500px;
   font-size: 15px;
   transform: translate(-50%, 50%);
 }
+
 
 #summary {
   margin-left: 60px;
@@ -209,4 +226,30 @@ ul {
 
 .flashing {
   animation: flashing 1s infinite;
+}
+
+@keyframes flashing-text {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.flashing-text {
+  animation: flashing 1s 2;
 }

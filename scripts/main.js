@@ -19,12 +19,12 @@ const OPPOSITION_GK_HEIGHT = 30
 // Ball constant
 const BALL_WIDTH = 7
 const BALL_HEIGHT = 7
-const BALL_VELOCITY = 2
+const BALL_VELOCITY = 3
 const BALL_TIME = 2000
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 60
+const INIT_SECONDS = 45
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = 5
 const PENALTY_MS = PENALTY_SECONDS * 1000
@@ -42,7 +42,8 @@ const $display = $('#display')
 const $startingInstruction = $('#starting-instruction')
 const gameWidth = $gameArea.width()
 const gameHeight = $gameArea.height()
-const $resetBTN = $('#reset-button')
+const $resetBall = $('#reset-ball')
+const $textArea = $('.text-area')
 
 // Score
 const $displayScore = $('#display-score')
@@ -161,12 +162,12 @@ const shotOutcome = () => {
       fBall.position.y < 0 + GOAL_HEIGHT &&
       fBall.position.y + fBall.dimension.h > 0){
     fBall.shot = false
-    alert ('You scored! Let\'s make it more difficult.')
+    $textArea.addClass('flashing-text').addClass('red').text('You scored a goal!!')
     points++
     $displayScore.text(points)
-    resetPlayerPosition()
     setOpposition()
     opPlayers.forEach((opPlay) => opPlay.levelVelocity++)
+    resetPlayerPosition()
   }
 
   // Out of bounds - Left Side before the goal
@@ -176,6 +177,10 @@ const shotOutcome = () => {
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
+    $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
+    setTimeout(() => {
+      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    }, 3000);
   }
 
   // Out of bounds - Right Side after the goal
@@ -185,6 +190,10 @@ const shotOutcome = () => {
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
+    $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
+    setTimeout(() => {
+      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    }, 2000);
   }
 
   // Hits opposition or GK
@@ -194,6 +203,10 @@ const shotOutcome = () => {
         fBall.position.y < opPlay.position.y + opPlay.dimension.h &&
         fBall.position.y + fBall.dimension.h > opPlay.position.y){
     fBall.shot = false
+    $textArea.addClass('flashing-text').addClass('red').text('You hit the opposition!!')
+    setTimeout(() => {
+      $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+    }, 2000);
     }
   })
 }
@@ -372,7 +385,11 @@ const handleKeyUp = (e) => {
 const resetPlayerPosition = () => {
   player.position.x = 225 - ((player.dimension.w) / 2)
   player.position.y = 560
+  setTimeout(() => {
+    $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
+  }, 2000);
 }
+
 
 const setOpposition = () => {
   opPlayers.forEach((opPlay) => { //inputs the x co-ordinate into the opPlayers array
@@ -384,7 +401,7 @@ const setOpposition = () => {
 }
 
 //Reset the ball due to glitch
-const reset = () => {
+const resetBall = () => {
   fBall.shot = false
 }
 
@@ -394,15 +411,15 @@ const restart = () => {
   points = 0
   $gameScreen.show()
   $displayScore.text('0')
+  opPlayers.forEach((opPlay) => opPlay.levelVelocity = 2)
   $oppositionPlayer.show()
   setOpposition()
-  opPlayers.forEach((opPlay) => opPlay.levelVelocity = 2)
+  $display.show()
   $gameOverBox.hide()
   $player.show()
   $ball.show()
-  $reset.show()
   resetPlayerPosition()
-  $display.show()
+  $reset.show()
   $startingInstruction.show()
 }
 
@@ -410,7 +427,7 @@ const init = () => {
   $(document).on('keydown', handleKeyDown)
   $(document).on('keyup', handleKeyUp)
   $restartBTN.on('click', restart)
-  $resetBTN.on('click', reset)
+  $resetBall.on('click', resetBall)
   restart()
 }
 
