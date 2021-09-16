@@ -196,10 +196,12 @@ div~p {
 #summary {
   margin-left: 60px;
   margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 ul {
   margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 @keyframes flashing {
@@ -252,4 +254,8 @@ ul {
 
 .flashing-text {
   animation: flashing 1s 2;
+}
+
+sub {
+  margin-left: 60px;
 }

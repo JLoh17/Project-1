@@ -24,7 +24,7 @@ const BALL_TIME = 2000
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 45
+const INIT_SECONDS = 60
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = 5
 const PENALTY_MS = PENALTY_SECONDS * 1000
@@ -150,9 +150,9 @@ const gameOver = () => {
   $oppositionPlayer.hide()
   $gameScreen.hide()
   $display.hide()
+  $textArea.hide()
   $gameOverBox.show() // show game over
   $scoreText.text(points) //show points score
-  $reset.hide()
 }
 
 const shotOutcome = () => {
@@ -172,7 +172,7 @@ const shotOutcome = () => {
 
   // Out of bounds - Left Side before the goal
   // Deleting all the 0s and non functions caused the player not to fire on the left side. If it works, don't break it!
-  if (fBall.position.x < 0 + 177 &&
+  if (fBall.position.x < 0 + 176 &&
       fBall.position.x + fBall.dimension.w > 0 &&
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
@@ -180,20 +180,20 @@ const shotOutcome = () => {
     $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
     setTimeout(() => {
       $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
-    }, 3000);
+    }, 1500);
   }
 
   // Out of bounds - Right Side after the goal
   // Ditto for below
-  if (fBall.position.x < 273 + 177 &&
-      fBall.position.x + fBall.dimension.w > 273 &&
+  if (fBall.position.x < 274 + 177 &&
+      fBall.position.x + fBall.dimension.w > 274 &&
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
     $textArea.addClass('flashing-text').addClass('red').text('You missed!!')
     setTimeout(() => {
       $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
-    }, 2000);
+    }, 1000);
   }
 
   // Hits opposition or GK
@@ -206,7 +206,7 @@ const shotOutcome = () => {
     $textArea.addClass('flashing-text').addClass('red').text('You hit the opposition!!')
     setTimeout(() => {
       $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
-    }, 2000);
+    }, 1500);
     }
   })
 }
@@ -387,7 +387,7 @@ const resetPlayerPosition = () => {
   player.position.y = 560
   setTimeout(() => {
     $textArea.removeClass('flashing-text').removeClass('red').text('The ball must touch the blue bar to register a goal!')
-  }, 2000);
+  }, 1500);
 }
 
 
@@ -415,11 +415,11 @@ const restart = () => {
   $oppositionPlayer.show()
   setOpposition()
   $display.show()
+  $textArea.show()
   $gameOverBox.hide()
   $player.show()
   $ball.show()
   resetPlayerPosition()
-  $reset.show()
   $startingInstruction.show()
 }
 
