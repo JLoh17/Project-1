@@ -5,7 +5,7 @@ const CHARACTER_WIDTH = 20
 const CHARACTER_HEIGHT = 20
 const FPS = 60
 const LOOP_INTERVAL = Math.round(1000 / FPS)
-const VELOCITY = 5
+const VELOCITY = 2
 const INVINCIBLE_TIME = 1000
 
 // Opposition player
@@ -24,7 +24,7 @@ const BALL_TIME = 2000
 
 // Time left constant
 const $timeLeftText = $('#time-left')
-const INIT_SECONDS = 2
+const INIT_SECONDS = 60
 const INIT_MS = INIT_SECONDS * 1000
 const PENALTY_SECONDS = 5
 const PENALTY_MS = PENALTY_SECONDS * 1000
@@ -42,6 +42,7 @@ const $display = $('#display')
 const $startingInstruction = $('#starting-instruction')
 const gameWidth = $gameArea.width()
 const gameHeight = $gameArea.height()
+const $resetBTN = $('#reset-button')
 
 // Score
 const $displayScore = $('#display-score')
@@ -102,28 +103,28 @@ let opPlayers = [
     $elem: $opPlay1,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 100 },
-    levelVelocity: 2.5,
+    levelVelocity: 2,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay2,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 200 },
-    levelVelocity: 2.5,
+    levelVelocity: 2,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay3,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 300 },
-    levelVelocity: 2.5,
+    levelVelocity: 2,
     lBound: 0,
     rBound: gameWidth
   }, {
     $elem: $opPlay4,
     dimension: { w: OPPOSITION_WIDTH, h: OPPOSITION_HEIGHT  },
     position: { y: 400 },
-    levelVelocity: 2.5,
+    levelVelocity: 2,
     lBound: 0,
     rBound: gameWidth
   }, {
@@ -136,24 +137,12 @@ let opPlayers = [
   }
 ]
 
-// creates an array for opposition players
-
-// const levelMapping = {
-//   1: [
-//     [0, 3],
-//     [4, 6]
-//   ],
-//   2: [
-//     [2, 6]
-//     [3, 6]
-//     [4, 8]
-//     [5, 6]
-//   ]
-// }
-
 // Game over
 const gameOver = () => {
   clearInterval(clockInterval)
+  clearInterval(gameLoop)
+  clockInterval = null
+  gameLoop = null
   fBall.shot = false
   $player.hide()
   $ball.hide()
@@ -162,52 +151,49 @@ const gameOver = () => {
   $display.hide()
   $gameOverBox.show() // show game over
   $scoreText.text(points) //show points score
+  $reset.hide()
 }
 
-
 const shotOutcome = () => {
-// Goal!
+  // Goal!
   if (fBall.position.x < 177 + GOAL_WIDTH &&
       fBall.position.x + fBall.dimension.w > 177 &&
       fBall.position.y < 0 + GOAL_HEIGHT &&
       fBall.position.y + fBall.dimension.h > 0){
     fBall.shot = false
-    alert ('You scored!')
+    alert ('You scored! Let\'s make it more difficult.')
     points++
     $displayScore.text(points)
-    characterShoot()
     resetPlayerPosition()
-    opPlayers[0].levelVelocity++
-    }
+    setOpposition()
+    opPlayers.forEach((opPlay) => opPlay.levelVelocity++)
+  }
 
-// Out of bounds - Left Side before the goal
-// Deleting all the 0s and non functions caused the player not to fire on the left side. If it works, don't break it!
+  // Out of bounds - Left Side before the goal
+  // Deleting all the 0s and non functions caused the player not to fire on the left side. If it works, don't break it!
   if (fBall.position.x < 0 + 177 &&
       fBall.position.x + fBall.dimension.w > 0 &&
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
-    characterShoot()
   }
 
-// Out of bounds - Right Side after the goal
-// Ditto for below
+  // Out of bounds - Right Side after the goal
+  // Ditto for below
   if (fBall.position.x < 273 + 177 &&
       fBall.position.x + fBall.dimension.w > 273 &&
       fBall.position.y < 0 &&
       fBall.position.y + fBall.dimension.h > 0) {
     fBall.shot = false
-    characterShoot()
   }
 
-// Hits opposition or GK
+  // Hits opposition or GK
   opPlayers.forEach((opPlay) => {
     if (fBall.position.x < opPlay.position.x + opPlay.dimension.w &&
         fBall.position.x + fBall.dimension.w > opPlay.position.x &&
         fBall.position.y < opPlay.position.y + opPlay.dimension.h &&
         fBall.position.y + fBall.dimension.h > opPlay.position.y){
-      fBall.shot = false
-      characterShoot()
+    fBall.shot = false
     }
   })
 }
@@ -233,7 +219,6 @@ const characterShoot = (e) => {
   fBall.position.y = newY
   $ball.css('left', newX).css('top', newY)
 }
-
 
 // Random function
 const randomInt = (max) => {
@@ -374,7 +359,7 @@ const setPlayerMovement = (value, keyCode, e) => {
 
 // Handling Key Down
 const handleKeyDown = (e) => {
-  if (!clockInterval) startClock ()
+  if (!clockInterval) startClock()
   $startingInstruction.hide()
   setPlayerMovement(true, e.keyCode, e) //the extra e prevents default
 }
@@ -398,27 +383,34 @@ const setOpposition = () => {
   })
 }
 
+//Reset the ball due to glitch
+const reset = () => {
+  fBall.shot = false
+}
+
 //Restart
 const restart = () => {
-  clockInterval = null
+  gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
   points = 0
+  $gameScreen.show()
   $displayScore.text('0')
+  $oppositionPlayer.show()
+  setOpposition()
+  opPlayers.forEach((opPlay) => opPlay.levelVelocity = 2)
   $gameOverBox.hide()
   $player.show()
   $ball.show()
-  $oppositionPlayer.show() //have not programed yet
-  $gameScreen.show()
+  $reset.show()
+  resetPlayerPosition()
   $display.show()
   $startingInstruction.show()
-  resetPlayerPosition()
-  setOpposition()
 }
 
 const init = () => {
   $(document).on('keydown', handleKeyDown)
   $(document).on('keyup', handleKeyUp)
   $restartBTN.on('click', restart)
-  gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
+  $resetBTN.on('click', reset)
   restart()
 }
 
