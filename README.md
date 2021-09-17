@@ -26,3 +26,6 @@ Languages used:
 
 Libraries used:
 - jQuery
+
+Top score:
+9 = Jonathan Loh (The creator), and Jonathan Lee
